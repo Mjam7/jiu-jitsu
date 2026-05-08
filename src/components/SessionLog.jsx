@@ -40,7 +40,7 @@ function SessionCard({ session, techniques, onDelete }) {
   const tagged = techniques.filter(t => session.taggedTechniques?.includes(t.id))
 
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', marginBottom: '10px' }}>
+    <div style={{ background: '#ffffff', border: '1px solid var(--border)', borderRadius: '10px', marginBottom: '10px' }}>
       <div style={{ padding: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
@@ -126,7 +126,7 @@ export default function SessionLog() {
       </div>
 
       {/* Entry Card */}
-      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px', marginBottom: '24px' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px', marginBottom: '24px' }}>
         <div className="font-mono" style={{ fontSize: '10px', color: 'var(--accent)', marginBottom: '14px' }}>NEW SESSION</div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '16px' }}>

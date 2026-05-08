@@ -37,7 +37,7 @@ function TierCard({ technique }) {
 
 function Tier({ label, sublabel, color, techniques, emptyMsg }) {
   return (
-    <div style={{ background: 'var(--bg-card)', border: `1px solid ${color}22`, borderRadius: '10px', padding: '20px', marginBottom: '12px' }}>
+    <div style={{ background: '#ffffff', border: `1px solid ${color}22`, borderRadius: '10px', padding: '20px', marginBottom: '12px' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '4px' }}>
         <span className="font-display" style={{ fontSize: '48px', color, lineHeight: 1 }}>{label}-Game</span>
         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{sublabel}</span>
@@ -140,7 +140,7 @@ export default function GameHub() {
         </div>
       ) : (
         <>
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px', marginBottom: '12px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px', marginBottom: '12px' }}>
             <div className="font-display" style={{ fontSize: '18px', color: 'var(--accent)', marginBottom: '2px' }}>STRATEGY MAP</div>
             <p className="font-mono" style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '16px' }}>
               Your A-Game flow — entry to finish

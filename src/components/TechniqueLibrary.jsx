@@ -119,7 +119,7 @@ function TechniqueForm({ initial = EMPTY_FORM, onSave, onCancel }) {
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addGrip() } }} />
           <button type="button" onClick={addGrip} style={{
             padding: '8px 12px', borderRadius: '6px', whiteSpace: 'nowrap', cursor: 'pointer',
-            background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)',
+            background: '#ffffff', border: '1px solid var(--border)', color: 'var(--text-secondary)',
             fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
           }}>+ Add</button>
         </div>
@@ -167,7 +167,7 @@ function TechniqueForm({ initial = EMPTY_FORM, onSave, onCancel }) {
         }}>Save Technique</button>
         <button type="button" onClick={onCancel} style={{
           padding: '9px 20px', borderRadius: '8px', cursor: 'pointer',
-          background: 'var(--bg-card)', border: '1px solid var(--border)',
+          background: '#ffffff', border: '1px solid var(--border)',
           color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
         }}>Cancel</button>
       </div>
@@ -181,7 +181,7 @@ function TechniqueCard({ technique, onEdit, onDelete }) {
 
   return (
     <div className="technique-card" style={{
-      background: 'var(--bg-card)', border: '1px solid var(--border)',
+      background: '#ffffff', border: '1px solid var(--border)',
       borderRadius: '10px', padding: '14px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>

@@ -16,8 +16,9 @@ export default function Nav({ activeHub, setActiveHub, profile }) {
   return (
     <>
       <nav style={{
-        background: 'var(--bg-card)',
+        background: '#ffffff',
         borderBottom: '1px solid var(--border)',
+        boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 24px', height: '56px',
@@ -33,13 +34,12 @@ export default function Nav({ activeHub, setActiveHub, profile }) {
           {hubs.map(hub => (
             <button key={hub.id} onClick={() => setActiveHub(hub.id)} style={{
               color: activeHub === hub.id ? 'var(--text-primary)' : 'var(--text-secondary)',
-              borderBottom: activeHub === hub.id ? '2px solid var(--accent)' : '2px solid transparent',
-              background: 'transparent', border: 'none',
-              borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-              borderBottomWidth: '2px', borderBottomStyle: 'solid',
-              borderBottomColor: activeHub === hub.id ? 'var(--accent)' : 'transparent',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: `2px solid ${activeHub === hub.id ? 'var(--accent)' : 'transparent'}`,
               cursor: 'pointer', padding: '6px 14px', fontSize: '13px',
               fontWeight: '500', fontFamily: "'DM Sans', sans-serif",
+              transition: 'color 0.15s',
             }}>
               {hub.label}
             </button>
@@ -51,6 +51,7 @@ export default function Nav({ activeHub, setActiveHub, profile }) {
           padding: '6px 12px', borderRadius: '100px',
           background: 'var(--bg-elevated)', border: '1px solid var(--border)',
           cursor: 'pointer', color: 'var(--text-primary)',
+          boxShadow: 'none',
         }}>
           <div style={{
             width: '20px', height: '20px', borderRadius: '50%',

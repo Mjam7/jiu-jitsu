@@ -22,14 +22,14 @@ export default function ProfilePanel({ onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', justifyContent: 'flex-end' }}
       onClick={onClose}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(3px)' }} />
       <div style={{
         position: 'relative', width: '380px', height: '100%', overflowY: 'auto',
-        background: 'var(--bg-card)', borderLeft: '1px solid var(--border)',
+        background: '#ffffff', borderLeft: '1px solid var(--border)',
+        boxShadow: '-4px 0 24px rgba(0,0,0,0.1)',
       }} onClick={e => e.stopPropagation()}>
         <div style={{ padding: '24px' }}>
 
-          {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
             <div className="font-display" style={{ fontSize: '24px', color: 'var(--accent)' }}>PRACTITIONER</div>
             <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
@@ -42,7 +42,7 @@ export default function ProfilePanel({ onClose }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
               <div style={{ flex: 1, height: '28px', borderRadius: '4px', background: belt.color, position: 'relative', overflow: 'hidden' }}>
                 {Array.from({ length: profile.stripes || 0 }).map((_, i) => (
-                  <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, width: '10px', right: `${8 + i * 15}px`, background: 'rgba(255,255,255,0.45)' }} />
+                  <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, width: '10px', right: `${8 + i * 15}px`, background: 'rgba(255,255,255,0.5)' }} />
                 ))}
               </div>
               <span className="font-mono" style={{ fontSize: '11px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
@@ -63,7 +63,7 @@ export default function ProfilePanel({ onClose }) {
                 {[0,1,2,3,4].map(n => (
                   <button key={n} onClick={() => updateProfile({ stripes: n })} style={{
                     width: '22px', height: '22px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px',
-                    background: profile.stripes === n ? 'var(--accent-glow)' : 'var(--bg-card)',
+                    background: profile.stripes === n ? 'var(--accent-glow)' : '#ffffff',
                     border: `1px solid ${profile.stripes === n ? 'var(--accent-dim)' : 'var(--border)'}`,
                     color: profile.stripes === n ? 'var(--accent)' : 'var(--text-muted)',
                     fontFamily: "'DM Mono', monospace",
@@ -73,7 +73,6 @@ export default function ProfilePanel({ onClose }) {
             </div>
           </div>
 
-          {/* Stats Fields */}
           <div style={{ marginBottom: '28px' }}>
             {[
               { key: 'name', label: 'Name', placeholder: 'Your name' },
@@ -91,7 +90,6 @@ export default function ProfilePanel({ onClose }) {
             ))}
           </div>
 
-          {/* Competitions */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -141,14 +139,14 @@ export default function ProfilePanel({ onClose }) {
                   }}>Save</button>
                   <button type="button" onClick={() => setShowCompForm(false)} style={{
                     padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px',
-                    background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)',
+                    background: '#ffffff', border: '1px solid var(--border)', color: 'var(--text-secondary)',
                     fontFamily: "'DM Sans', sans-serif",
                   }}>Cancel</button>
                 </div>
               </form>
             )}
 
-            {(profile.competitions?.length === 0 || !profile.competitions) && (
+            {(!profile.competitions || profile.competitions.length === 0) && (
               <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', padding: '16px 0' }}>No competitions yet</p>
             )}
             {profile.competitions?.map(comp => (

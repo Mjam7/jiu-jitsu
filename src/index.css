@@ -2,16 +2,16 @@
 @import "tailwindcss";
 
 :root {
-  --bg-base: #0a0a0a;
-  --bg-card: #111111;
-  --bg-elevated: #1a1a1a;
-  --border: #222222;
-  --text-primary: #f0ede8;
-  --text-secondary: #888880;
-  --text-muted: #444440;
-  --accent: #c8a96e;
-  --accent-dim: #8a7048;
-  --accent-glow: rgba(200, 169, 110, 0.12);
+  --bg-base: #f5f5f3;
+  --bg-card: #ffffff;
+  --bg-elevated: #f0efe9;
+  --border: #e0ddd6;
+  --text-primary: #1a1a18;
+  --text-secondary: #666660;
+  --text-muted: #aaa9a3;
+  --accent: #8a6030;
+  --accent-dim: #b8843e;
+  --accent-glow: rgba(138, 96, 48, 0.08);
   --red: #c0392b;
   --blue: #2980b9;
   --purple: #8e44ad;
@@ -46,11 +46,15 @@ body {
   font-family: 'DM Mono', monospace !important;
 }
 
-.technique-card { transition: transform 0.15s ease, border-color 0.15s ease; }
-.technique-card:hover { transform: translateY(-1px); border-color: var(--accent-dim) !important; }
+.technique-card { transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+.technique-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-dim) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
 
 @keyframes pulse-record {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.5); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
   50% { box-shadow: 0 0 0 12px rgba(192, 57, 43, 0); }
 }
 .recording-pulse { animation: pulse-record 1.4s ease infinite; }
@@ -62,7 +66,7 @@ body {
 .fade-up { animation: fadeUp 0.3s ease forwards; }
 
 .input-field {
-  background: var(--bg-elevated) !important;
+  background: #ffffff !important;
   border: 1px solid var(--border) !important;
   color: var(--text-primary) !important;
   border-radius: 6px;
@@ -73,9 +77,9 @@ body {
   transition: border-color 0.15s;
   width: 100%;
 }
-.input-field:focus { border-color: var(--accent-dim) !important; }
+.input-field:focus { border-color: var(--accent-dim) !important; box-shadow: 0 0 0 3px rgba(138,96,48,0.1); }
 .input-field::placeholder { color: var(--text-muted) !important; }
-select.input-field option { background: var(--bg-elevated); }
+select.input-field option { background: #ffffff; color: var(--text-primary); }
 textarea.input-field { resize: vertical; min-height: 80px; }
 
 input[type="range"] { accent-color: var(--accent); }
