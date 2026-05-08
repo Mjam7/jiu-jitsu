@@ -10,24 +10,28 @@ const EMPTY_FORM = {
 
 function ConfidenceBar({ value }) {
   const pct = (value / 10) * 100
-  const color = value >= 7 ? '#27ae60' : value >= 4 ? '#c8a96e' : '#c0392b'
+  const color = value >= 7 ? 'var(--green)' : value >= 4 ? 'var(--accent)' : 'var(--red)'
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 rounded-full" style={{ background: 'var(--border)' }}>
-        <div className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, background: color }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ flex: 1, height: '4px', borderRadius: '2px', background: 'var(--border)' }}>
+        <div style={{ width: `${pct}%`, height: '100%', borderRadius: '2px', background: color, transition: 'width 0.5s' }} />
       </div>
-      <span className="font-mono text-xs w-4" style={{ color }}>{value}</span>
+      <span className="font-mono" style={{ color, fontSize: '12px', fontWeight: '700', minWidth: '16px' }}>{value}</span>
     </div>
   )
 }
 
 function GripTag({ grip, onRemove }) {
   return (
-    <span className="flex items-center gap-1 tag-pill active">
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: '4px',
+      background: 'var(--accent-glow)', border: '1px solid var(--accent-dim)',
+      color: 'var(--accent)', borderRadius: '100px', padding: '2px 10px',
+      fontSize: '11px', fontFamily: "'DM Mono', monospace",
+    }}>
       {grip.type}: {grip.detail}
       {onRemove && (
-        <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: 0, display: 'flex' }}>
+        <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: 0, display: 'flex', lineHeight: 1 }}>
           <X size={10} />
         </button>
       )}
@@ -36,12 +40,12 @@ function GripTag({ grip, onRemove }) {
 }
 
 function TechniqueForm({ initial = EMPTY_FORM, onSave, onCancel }) {
-  const [form, setForm] = useState(initial)
+  const [form, setForm] = useState({ ...EMPTY_FORM, ...initial })
   const [gripInput, setGripInput] = useState({ type: 'Sleeve', detail: '' })
 
   function addGrip() {
     if (!gripInput.detail.trim()) return
-    setForm(f => ({ ...f, grips: [...f.grips, { ...gripInput }] }))
+    setForm(f => ({ ...f, grips: [...(f.grips || []), { ...gripInput }] }))
     setGripInput(g => ({ ...g, detail: '' }))
   }
 
@@ -50,15 +54,11 @@ function TechniqueForm({ initial = EMPTY_FORM, onSave, onCancel }) {
   }
 
   function addVideo() {
-    setForm(f => ({ ...f, videos: [...f.videos, ''] }))
+    setForm(f => ({ ...f, videos: [...(f.videos || []), ''] }))
   }
 
   function updateVideo(i, val) {
-    setForm(f => {
-      const videos = [...f.videos]
-      videos[i] = val
-      return { ...f, videos }
-    })
+    setForm(f => { const v = [...(f.videos || [])]; v[i] = val; return { ...f, videos: v } })
   }
 
   function removeVideo(i) {
@@ -68,21 +68,23 @@ function TechniqueForm({ initial = EMPTY_FORM, onSave, onCancel }) {
   function handleSubmit(e) {
     e.preventDefault()
     if (!form.name.trim()) return
-    onSave({ ...form, videos: form.videos.filter(v => v.trim()) })
+    onSave({ ...form, videos: (form.videos || []).filter(v => v.trim()) })
   }
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-5 rounded-xl"
-      style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+  const card = { background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px' }
+  const label = { display: 'block', fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'DM Mono', monospace", marginBottom: '4px', textTransform: 'uppercase' }
+  const row2 = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }
 
-      <div className="grid grid-cols-2 gap-3">
+  return (
+    <form onSubmit={handleSubmit} style={{ ...card, marginBottom: '20px' }}>
+      <div style={row2}>
         <div>
-          <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>NAME *</label>
+          <label style={label}>Name *</label>
           <input className="input-field" placeholder="e.g. Knee Cut Pass"
             value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
         </div>
         <div>
-          <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>CATEGORY</label>
+          <label style={label}>Category</label>
           <select className="input-field" value={form.category}
             onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
             {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
@@ -90,86 +92,84 @@ function TechniqueForm({ initial = EMPTY_FORM, onSave, onCancel }) {
         </div>
       </div>
 
-      <div>
-        <label className="flex justify-between text-xs mb-2 font-mono" style={{ color: 'var(--text-muted)' }}>
-          <span>CONFIDENCE</span>
-          <span style={{ color: 'var(--accent)' }}>{form.confidence}/10 — {CONFIDENCE_LABELS[form.confidence]}</span>
-        </label>
+      <div style={{ marginBottom: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+          <label style={label}>Confidence</label>
+          <span className="font-mono" style={{ fontSize: '11px', color: 'var(--accent)' }}>
+            {form.confidence}/10 — {CONFIDENCE_LABELS[form.confidence]}
+          </span>
+        </div>
         <input type="range" min={1} max={10} value={form.confidence}
           onChange={e => setForm(f => ({ ...f, confidence: +e.target.value }))}
-          className="w-full" />
+          style={{ width: '100%' }} />
       </div>
 
-      {/* Grips */}
-      <div>
-        <label className="block text-xs mb-2 font-mono" style={{ color: 'var(--text-muted)' }}>GI GRIPS</label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {form.grips.map((g, i) => (
-            <GripTag key={i} grip={g} onRemove={() => removeGrip(i)} />
-          ))}
+      <div style={{ marginBottom: '14px' }}>
+        <label style={label}>Gi Grips</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+          {(form.grips || []).map((g, i) => <GripTag key={i} grip={g} onRemove={() => removeGrip(i)} />)}
         </div>
-        <div className="flex gap-2">
-          <select className="input-field" style={{ maxWidth: '120px' }}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <select className="input-field" style={{ maxWidth: '110px' }}
             value={gripInput.type} onChange={e => setGripInput(g => ({ ...g, type: e.target.value }))}>
             {GRIP_TYPES.map(t => <option key={t}>{t}</option>)}
           </select>
           <input className="input-field" placeholder="e.g. Cross-collar sleeve"
             value={gripInput.detail} onChange={e => setGripInput(g => ({ ...g, detail: e.target.value }))}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addGrip() } }} />
-          <button type="button" onClick={addGrip}
-            className="px-3 py-2 rounded text-sm"
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            + Add
-          </button>
+          <button type="button" onClick={addGrip} style={{
+            padding: '8px 12px', borderRadius: '6px', whiteSpace: 'nowrap', cursor: 'pointer',
+            background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)',
+            fontFamily: "'DM Sans', sans-serif", fontSize: '12px',
+          }}>+ Add</button>
         </div>
       </div>
 
-      <div>
-        <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>NOTES & CUES</label>
+      <div style={{ marginBottom: '14px' }}>
+        <label style={label}>Notes & Cues</label>
         <textarea className="input-field" placeholder="Personal cues, setups, common mistakes..."
           value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
       </div>
 
-      {/* Videos */}
-      <div>
-        <label className="block text-xs mb-2 font-mono" style={{ color: 'var(--text-muted)' }}>REFERENCE VIDEOS</label>
-        <div className="space-y-2">
-          {form.videos.map((v, i) => (
-            <div key={i} className="flex gap-2">
-              <input className="input-field" placeholder="YouTube / Instagram URL"
-                value={v} onChange={e => updateVideo(i, e.target.value)} />
-              {form.videos.length > 1 && (
-                <button type="button" onClick={() => removeVideo(i)}
-                  style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}>
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <button type="button" onClick={addVideo}
-          className="mt-2 text-xs flex items-center gap-1"
-          style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}>
+      <div style={{ marginBottom: '14px' }}>
+        <label style={label}>Reference Videos</label>
+        {(form.videos || ['']).map((v, i) => (
+          <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+            <input className="input-field" placeholder="YouTube / Instagram URL"
+              value={v} onChange={e => updateVideo(i, e.target.value)} />
+            {(form.videos || []).length > 1 && (
+              <button type="button" onClick={() => removeVideo(i)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        ))}
+        <button type="button" onClick={addVideo} style={{
+          background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer',
+          fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: "'DM Sans', sans-serif",
+        }}>
           <Plus size={12} /> Add another video
         </button>
       </div>
 
-      <div>
-        <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>LAST TRAINED</label>
+      <div style={{ marginBottom: '18px' }}>
+        <label style={label}>Last Trained</label>
         <input type="date" className="input-field" value={form.lastTrained}
           onChange={e => setForm(f => ({ ...f, lastTrained: e.target.value }))} />
       </div>
 
-      <div className="flex gap-2 pt-2">
-        <button type="submit" className="flex-1 py-2 rounded font-medium text-sm"
-          style={{ background: 'var(--accent-glow)', border: '1px solid var(--accent-dim)', color: 'var(--accent)', cursor: 'pointer' }}>
-          Save Technique
-        </button>
-        <button type="button" onClick={onCancel}
-          className="px-5 py-2 rounded text-sm"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-          Cancel
-        </button>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button type="submit" style={{
+          flex: 1, padding: '9px', borderRadius: '8px', cursor: 'pointer',
+          background: 'var(--accent-glow)', border: '1px solid var(--accent-dim)',
+          color: 'var(--accent)', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '500',
+        }}>Save Technique</button>
+        <button type="button" onClick={onCancel} style={{
+          padding: '9px 20px', borderRadius: '8px', cursor: 'pointer',
+          background: 'var(--bg-card)', border: '1px solid var(--border)',
+          color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif", fontSize: '13px',
+        }}>Cancel</button>
       </div>
     </form>
   )
@@ -180,31 +180,33 @@ function TechniqueCard({ technique, onEdit, onDelete }) {
   const cat = CATEGORIES.find(c => c.id === technique.category)
 
   return (
-    <div className="technique-card rounded-xl p-4"
-      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-      <div className="flex items-start justify-between mb-2">
+    <div className="technique-card" style={{
+      background: 'var(--bg-card)', border: '1px solid var(--border)',
+      borderRadius: '10px', padding: '14px',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm">{cat?.icon}</span>
-            <h3 className="font-medium text-sm">{technique.name}</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '14px' }}>{cat?.icon}</span>
+            <span style={{ fontWeight: '500', fontSize: '13px' }}>{technique.name}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="tag-pill">{cat?.label}</span>
             {technique.lastTrained && (
-              <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-mono" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                 {technique.lastTrained}
               </span>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div style={{ display: 'flex', gap: '6px' }}>
           <button onClick={() => onEdit(technique)}
-            style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}>
-            <Edit3 size={14} />
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px' }}>
+            <Edit3 size={13} />
           </button>
           <button onClick={() => onDelete(technique.id)}
-            style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}>
-            <Trash2 size={14} />
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px' }}>
+            <Trash2 size={13} />
           </button>
         </div>
       </div>
@@ -212,34 +214,35 @@ function TechniqueCard({ technique, onEdit, onDelete }) {
       <ConfidenceBar value={technique.confidence || 0} />
 
       {technique.grips?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-3">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '10px' }}>
           {technique.grips.map((g, i) => <GripTag key={i} grip={g} />)}
         </div>
       )}
 
       {(technique.notes || technique.videos?.length > 0) && (
         <>
-          <button onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-1 mt-3 text-xs"
-            style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}>
-            {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          <button onClick={() => setExpanded(!expanded)} style={{
+            display: 'flex', alignItems: 'center', gap: '4px', marginTop: '10px',
+            background: 'none', border: 'none', color: 'var(--text-muted)',
+            cursor: 'pointer', fontSize: '11px', fontFamily: "'DM Sans', sans-serif",
+          }}>
+            {expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
             {expanded ? 'Less' : 'Details'}
           </button>
 
           {expanded && (
-            <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid var(--border)' }}>
+            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border)' }}>
               {technique.notes && (
-                <p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: '0 0 8px' }}>
                   {technique.notes}
                 </p>
               )}
               {technique.videos?.filter(v => v).map((v, i) => (
                 <a key={i} href={v} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 text-xs"
-                  style={{ color: 'var(--accent)' }}>
-                  <Video size={12} />
-                  <span className="truncate">{v}</span>
-                  <ExternalLink size={10} />
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--accent)', marginBottom: '4px', textDecoration: 'none' }}>
+                  <Video size={11} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
+                  <ExternalLink size={9} style={{ flexShrink: 0 }} />
                 </a>
               ))}
             </div>
@@ -256,7 +259,7 @@ export default function TechniqueLibrary() {
   const [editingTechnique, setEditingTechnique] = useState(null)
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
-  const [sortBy, setSortBy] = useState('name') // name | confidence | recent
+  const [sortBy, setSortBy] = useState('name')
 
   function handleSave(data) {
     if (editingTechnique) {
@@ -268,16 +271,10 @@ export default function TechniqueLibrary() {
     }
   }
 
-  function handleEdit(technique) {
-    setEditingTechnique(technique)
-    setShowForm(false)
-  }
-
   const filtered = techniques
     .filter(t => {
       const matchCat = activeCategory === 'all' || t.category === activeCategory
-      const matchSearch = !search || t.name.toLowerCase().includes(search.toLowerCase()) ||
-        t.notes?.toLowerCase().includes(search.toLowerCase())
+      const matchSearch = !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.notes?.toLowerCase().includes(search.toLowerCase())
       return matchCat && matchSearch
     })
     .sort((a, b) => {
@@ -286,73 +283,63 @@ export default function TechniqueLibrary() {
       return a.name.localeCompare(b.name)
     })
 
-  const countByCategory = (catId) => techniques.filter(t => t.category === catId).length
-
   return (
-    <div className="space-y-6">
+    <div>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
         <div>
-          <h1 className="font-display text-4xl" style={{ color: 'var(--text-primary)' }}>TECHNIQUE LIBRARY</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
+          <h1 className="font-display" style={{ fontSize: '38px', margin: '0 0 4px', color: 'var(--text-primary)' }}>TECHNIQUE LIBRARY</h1>
+          <p className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
             {techniques.length} technique{techniques.length !== 1 ? 's' : ''} catalogued
           </p>
         </div>
-        <button
-          onClick={() => { setShowForm(true); setEditingTechnique(null) }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm"
-          style={{ background: 'var(--accent-glow)', border: '1px solid var(--accent-dim)', color: 'var(--accent)', cursor: 'pointer' }}>
-          <Plus size={16} /> Add Technique
+        <button onClick={() => { setShowForm(true); setEditingTechnique(null) }} style={{
+          display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px',
+          borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '500',
+          background: 'var(--accent-glow)', border: '1px solid var(--accent-dim)', color: 'var(--accent)',
+          fontFamily: "'DM Sans', sans-serif",
+        }}>
+          <Plus size={15} /> Add Technique
         </button>
       </div>
 
-      {/* Add / Edit Form */}
       {showForm && !editingTechnique && (
-        <TechniqueForm
-          onSave={handleSave}
-          onCancel={() => setShowForm(false)}
-        />
+        <TechniqueForm onSave={handleSave} onCancel={() => setShowForm(false)} />
       )}
+
       {editingTechnique && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-xs" style={{ color: 'var(--accent)' }}>EDITING:</span>
-            <span className="text-sm font-medium">{editingTechnique.name}</span>
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <span className="font-mono" style={{ fontSize: '10px', color: 'var(--accent)' }}>EDITING:</span>
+            <span style={{ fontSize: '13px', fontWeight: '500' }}>{editingTechnique.name}</span>
             <button onClick={() => setEditingTechnique(null)}
-              style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none', marginLeft: 'auto' }}>
-              <X size={16} />
+              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginLeft: 'auto' }}>
+              <X size={15} />
             </button>
           </div>
-          <TechniqueForm
-            initial={editingTechnique}
-            onSave={handleSave}
-            onCancel={() => setEditingTechnique(null)}
-          />
+          <TechniqueForm initial={editingTechnique} onSave={handleSave} onCancel={() => setEditingTechnique(null)} />
         </div>
       )}
 
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setActiveCategory('all')}
+      {/* Category Pills */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+        <button onClick={() => setActiveCategory('all')}
           className={`tag-pill ${activeCategory === 'all' ? 'active' : ''}`}>
           All ({techniques.length})
         </button>
         {CATEGORIES.map(cat => (
-          <button key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
+          <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
             className={`tag-pill ${activeCategory === cat.id ? 'active' : ''}`}>
-            {cat.icon} {cat.label} ({countByCategory(cat.id)})
+            {cat.icon} {cat.label} ({techniques.filter(t => t.category === cat.id).length})
           </button>
         ))}
       </div>
 
       {/* Search + Sort */}
-      <div className="flex gap-3">
-        <div className="flex-1 relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: 'var(--text-muted)' }} />
-          <input className="input-field pl-8" placeholder="Search techniques..."
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <div style={{ flex: 1, position: 'relative' }}>
+          <Search size={13} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <input className="input-field" style={{ paddingLeft: '30px' }} placeholder="Search techniques..."
             value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select className="input-field" style={{ maxWidth: '160px' }}
@@ -363,22 +350,22 @@ export default function TechniqueLibrary() {
         </select>
       </div>
 
-      {/* Technique Grid */}
+      {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="py-16 text-center">
-          <p className="text-4xl mb-3">🥋</p>
-          <p className="font-display text-2xl mb-2" style={{ color: 'var(--text-muted)' }}>
+        <div style={{ padding: '60px 0', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}>🥋</div>
+          <p className="font-display" style={{ fontSize: '24px', color: 'var(--text-muted)', margin: '0 0 8px' }}>
             {techniques.length === 0 ? 'START YOUR LIBRARY' : 'NO RESULTS'}
           </p>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
             {techniques.length === 0 ? 'Add your first technique above' : 'Try a different search or filter'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
           {filtered.map(t => (
             <TechniqueCard key={t.id} technique={t}
-              onEdit={handleEdit}
+              onEdit={t => { setEditingTechnique(t); setShowForm(false) }}
               onDelete={deleteTechnique} />
           ))}
         </div>

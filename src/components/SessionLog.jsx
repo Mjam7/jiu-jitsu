@@ -1,5 +1,5 @@
 import { useState, useContext, useRef, useCallback } from 'react'
-import { Mic, MicOff, Plus, Trash2, Tag, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
+import { Mic, MicOff, Trash2, Tag, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
 import { StoreContext } from '../store/StoreContext'
 import { CATEGORIES } from '../constants'
 
@@ -15,17 +15,13 @@ function useVoice(onTranscript) {
     rec.continuous = true
     rec.interimResults = true
     rec.lang = 'en-US'
-
     rec.onresult = (e) => {
       let full = ''
-      for (let i = 0; i < e.results.length; i++) {
-        full += e.results[i][0].transcript
-      }
+      for (let i = 0; i < e.results.length; i++) full += e.results[i][0].transcript
       onTranscript(full)
     }
     rec.onend = () => setListening(false)
     rec.onerror = () => setListening(false)
-
     recognitionRef.current = rec
     rec.start()
     setListening(true)
@@ -43,66 +39,54 @@ function SessionCard({ session, techniques, onDelete }) {
   const [expanded, setExpanded] = useState(false)
   const tagged = techniques.filter(t => session.taggedTechniques?.includes(t.id))
 
-  const formatDate = (iso) => {
-    if (!iso) return ''
-    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-  }
-
   return (
-    <div className="rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-      <div className="p-4">
-        <div className="flex items-start justify-between">
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', marginBottom: '10px' }}>
+      <div style={{ padding: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Calendar size={12} style={{ color: 'var(--text-muted)' }} />
-              <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
-                {session.date || formatDate(session.createdAt)}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <Calendar size={11} style={{ color: 'var(--text-muted)' }} />
+              <span className="font-mono" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                {session.date || new Date(session.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
-              {session.duration && (
-                <span className="tag-pill">{session.duration}</span>
-              )}
-              {session.sessionType && (
-                <span className="tag-pill">{session.sessionType}</span>
-              )}
+              {session.duration && <span className="tag-pill">{session.duration}</span>}
+              {session.sessionType && <span className="tag-pill">{session.sessionType}</span>}
             </div>
-            {session.title && (
-              <h3 className="font-medium text-sm mb-1">{session.title}</h3>
-            )}
+            {session.title && <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '6px' }}>{session.title}</div>}
           </div>
           <button onClick={() => onDelete(session.id)}
-            style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}>
-            <Trash2 size={14} />
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+            <Trash2 size={13} />
           </button>
         </div>
 
         {tagged.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '6px' }}>
             {tagged.map(t => {
               const cat = CATEGORIES.find(c => c.id === t.category)
-              return (
-                <span key={t.id} className="tag-pill active">
-                  {cat?.icon} {t.name}
-                </span>
-              )
+              return <span key={t.id} className="tag-pill active">{cat?.icon} {t.name}</span>
             })}
           </div>
         )}
 
         {session.transcript && (
-          <button onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-1 mt-2 text-xs"
-            style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }}>
-            {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-            {expanded ? 'Hide' : 'Session notes'}
+          <button onClick={() => setExpanded(!expanded)} style={{
+            display: 'flex', alignItems: 'center', gap: '4px', marginTop: '8px',
+            background: 'none', border: 'none', color: 'var(--text-muted)',
+            cursor: 'pointer', fontSize: '11px', fontFamily: "'DM Sans', sans-serif",
+          }}>
+            {expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+            {expanded ? 'Hide notes' : 'Session notes'}
           </button>
         )}
       </div>
 
       {expanded && session.transcript && (
-        <div className="px-4 pb-4">
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-            {session.transcript}
-          </p>
+        <div style={{ padding: '0 14px 14px' }}>
+          <p style={{
+            fontSize: '12px', lineHeight: '1.7', color: 'var(--text-secondary)',
+            borderTop: '1px solid var(--border)', paddingTop: '12px', margin: 0,
+          }}>{session.transcript}</p>
         </div>
       )}
     </div>
@@ -111,7 +95,6 @@ function SessionCard({ session, techniques, onDelete }) {
 
 export default function SessionLog() {
   const { sessions, techniques, addSession, deleteSession, updateTechnique } = useContext(StoreContext)
-
   const [transcript, setTranscript] = useState('')
   const [title, setTitle] = useState('')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
@@ -121,151 +104,104 @@ export default function SessionLog() {
   const [showTagPanel, setShowTagPanel] = useState(false)
   const [tagSearch, setTagSearch] = useState('')
 
-  const { listening, supported, start, stop } = useVoice((t) => setTranscript(t))
-
-  function toggleVoice() {
-    if (listening) stop()
-    else start()
-  }
-
-  function toggleTag(id) {
-    setTaggedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  }
+  const { listening, supported, start, stop } = useVoice(t => setTranscript(t))
 
   function handleSave() {
     if (!transcript.trim() && !title.trim()) return
     addSession({ title, date, duration, sessionType, transcript, taggedTechniques: taggedIds })
-
-    // Update lastTrained for tagged techniques
     taggedIds.forEach(id => updateTechnique(id, { lastTrained: date }))
-
-    // Reset
-    setTranscript('')
-    setTitle('')
-    setDuration('')
-    setSessionType('')
-    setTaggedIds([])
-    setShowTagPanel(false)
+    setTranscript(''); setTitle(''); setDuration(''); setSessionType(''); setTaggedIds([]); setShowTagPanel(false)
   }
 
-  const filteredTechniques = techniques.filter(t =>
-    !tagSearch || t.name.toLowerCase().includes(tagSearch.toLowerCase())
-  )
+  const canSave = transcript.trim() || title.trim()
+  const label = { display: 'block', fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'DM Mono', monospace", marginBottom: '4px', textTransform: 'uppercase' }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-4xl" style={{ color: 'var(--text-primary)' }}>SESSION LOG</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
+    <div>
+      <div style={{ marginBottom: '20px' }}>
+        <h1 className="font-display" style={{ fontSize: '38px', margin: '0 0 4px', color: 'var(--text-primary)' }}>SESSION LOG</h1>
+        <p className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
           {sessions.length} session{sessions.length !== 1 ? 's' : ''} recorded
         </p>
       </div>
 
-      {/* New Session Entry */}
-      <div className="rounded-xl p-5 space-y-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <div className="font-mono text-xs" style={{ color: 'var(--accent)' }}>NEW SESSION</div>
+      {/* Entry Card */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px', marginBottom: '24px' }}>
+        <div className="font-mono" style={{ fontSize: '10px', color: 'var(--accent)', marginBottom: '14px' }}>NEW SESSION</div>
 
-        {/* Meta fields */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div>
-            <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>DATE</label>
-            <input type="date" className="input-field" value={date}
-              onChange={e => setDate(e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>TITLE</label>
-            <input className="input-field" placeholder="e.g. Monday No-Gi"
-              value={title} onChange={e => setTitle(e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>DURATION</label>
-            <input className="input-field" placeholder="e.g. 90 min"
-              value={duration} onChange={e => setDuration(e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs mb-1 font-mono" style={{ color: 'var(--text-muted)' }}>TYPE</label>
-            <select className="input-field" value={sessionType}
-              onChange={e => setSessionType(e.target.value)}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '16px' }}>
+          <div><label style={label}>Date</label><input type="date" className="input-field" value={date} onChange={e => setDate(e.target.value)} /></div>
+          <div><label style={label}>Title</label><input className="input-field" placeholder="e.g. Monday Gi" value={title} onChange={e => setTitle(e.target.value)} /></div>
+          <div><label style={label}>Duration</label><input className="input-field" placeholder="90 min" value={duration} onChange={e => setDuration(e.target.value)} /></div>
+          <div><label style={label}>Type</label>
+            <select className="input-field" value={sessionType} onChange={e => setSessionType(e.target.value)}>
               <option value="">Any</option>
-              <option>Drilling</option>
-              <option>Sparring</option>
-              <option>Comp Prep</option>
-              <option>Open Mat</option>
-              <option>Class</option>
-              <option>Private</option>
+              {['Drilling','Sparring','Comp Prep','Open Mat','Class','Private'].map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
         </div>
 
-        {/* Dictation Area */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>SESSION NOTES</label>
+        <div style={{ marginBottom: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <label style={label}>Session Notes</label>
             {supported ? (
-              <button
-                onClick={toggleVoice}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium text-sm transition-all ${listening ? 'recording-pulse' : ''}`}
+              <button onClick={() => listening ? stop() : start()}
+                className={listening ? 'recording-pulse' : ''}
                 style={{
-                  background: listening ? 'rgba(192,57,43,0.15)' : 'var(--bg-elevated)',
+                  display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px',
+                  borderRadius: '100px', cursor: 'pointer', fontSize: '12px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  background: listening ? 'rgba(192,57,43,0.12)' : 'var(--bg-elevated)',
                   border: `1px solid ${listening ? 'var(--red)' : 'var(--border)'}`,
-                  color: listening ? '#c0392b' : 'var(--text-secondary)',
-                  cursor: 'pointer',
+                  color: listening ? 'var(--red)' : 'var(--text-secondary)',
                 }}>
-                {listening ? <MicOff size={14} /> : <Mic size={14} />}
-                {listening ? 'Stop Recording' : 'Dictate'}
+                {listening ? <MicOff size={13} /> : <Mic size={13} />}
+                {listening ? 'Stop' : 'Dictate'}
               </button>
             ) : (
-              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Voice not supported in this browser</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Voice not supported</span>
             )}
           </div>
-          <textarea
-            className="input-field"
-            rows={5}
-            placeholder="Speak or type freely... e.g. 'Spent 3 rounds in half guard, focused on the underhook to dog fight sweep. Hit the knee cut three times from torreando. Struggled with posture in closed guard.'"
-            value={transcript}
-            onChange={e => setTranscript(e.target.value)}
-          />
+          <textarea className="input-field" rows={5}
+            placeholder="Speak or type freely... e.g. 'Spent 3 rounds in half guard, hit the knee cut twice from torreando...'"
+            value={transcript} onChange={e => setTranscript(e.target.value)} />
           {listening && (
-            <div className="flex items-center gap-2 mt-2">
-              <div className="w-2 h-2 rounded-full" style={{ background: 'var(--red)', animation: 'pulse-record 1s ease infinite' }} />
-              <span className="text-xs font-mono" style={{ color: 'var(--red)' }}>Listening...</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--red)', animation: 'pulse-record 1s ease infinite' }} />
+              <span className="font-mono" style={{ fontSize: '10px', color: 'var(--red)' }}>Listening...</span>
             </div>
           )}
         </div>
 
-        {/* Tagged Techniques */}
-        <div>
-          <button
-            onClick={() => setShowTagPanel(!showTagPanel)}
-            className="flex items-center gap-2 text-sm"
-            style={{ color: 'var(--text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}>
-            <Tag size={14} />
-            Tag Techniques
+        {/* Tag Techniques */}
+        <div style={{ marginBottom: '14px' }}>
+          <button onClick={() => setShowTagPanel(!showTagPanel)} style={{
+            display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none',
+            color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+          }}>
+            <Tag size={13} /> Tag Techniques
             {taggedIds.length > 0 && (
-              <span className="font-mono text-xs px-2 py-0.5 rounded-full"
-                style={{ background: 'var(--accent-glow)', color: 'var(--accent)', border: '1px solid var(--accent-dim)' }}>
-                {taggedIds.length} tagged
-              </span>
+              <span style={{
+                background: 'var(--accent-glow)', border: '1px solid var(--accent-dim)', color: 'var(--accent)',
+                borderRadius: '100px', padding: '1px 8px', fontSize: '10px', fontFamily: "'DM Mono', monospace",
+              }}>{taggedIds.length} tagged</span>
             )}
           </button>
 
           {showTagPanel && (
-            <div className="mt-3 p-3 rounded-lg" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
-              <input className="input-field mb-3" placeholder="Search techniques..."
+            <div style={{ marginTop: '10px', padding: '12px', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '8px' }}>
+              <input className="input-field" style={{ marginBottom: '10px' }} placeholder="Search techniques..."
                 value={tagSearch} onChange={e => setTagSearch(e.target.value)} />
               {techniques.length === 0 ? (
-                <p className="text-xs text-center py-2" style={{ color: 'var(--text-muted)' }}>
-                  Add techniques to your library first
-                </p>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', margin: 0 }}>Add techniques to your library first</p>
               ) : (
-                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                  {filteredTechniques.map(t => {
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '120px', overflowY: 'auto' }}>
+                  {techniques.filter(t => !tagSearch || t.name.toLowerCase().includes(tagSearch.toLowerCase())).map(t => {
                     const cat = CATEGORIES.find(c => c.id === t.category)
                     const tagged = taggedIds.includes(t.id)
                     return (
                       <button key={t.id}
-                        onClick={() => toggleTag(t.id)}
+                        onClick={() => setTaggedIds(p => p.includes(t.id) ? p.filter(x => x !== t.id) : [...p, t.id])}
                         className={`tag-pill ${tagged ? 'active' : ''}`}>
                         {cat?.icon} {t.name}
                       </button>
@@ -277,27 +213,19 @@ export default function SessionLog() {
           )}
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={!transcript.trim() && !title.trim()}
-          className="w-full py-2.5 rounded-lg font-medium text-sm"
-          style={{
-            background: (transcript.trim() || title.trim()) ? 'var(--accent-glow)' : 'var(--bg-elevated)',
-            border: `1px solid ${(transcript.trim() || title.trim()) ? 'var(--accent-dim)' : 'var(--border)'}`,
-            color: (transcript.trim() || title.trim()) ? 'var(--accent)' : 'var(--text-muted)',
-            cursor: (transcript.trim() || title.trim()) ? 'pointer' : 'not-allowed',
-          }}>
-          Save Session
-        </button>
+        <button onClick={handleSave} disabled={!canSave} style={{
+          width: '100%', padding: '10px', borderRadius: '8px', cursor: canSave ? 'pointer' : 'not-allowed',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: '500',
+          background: canSave ? 'var(--accent-glow)' : 'var(--bg-elevated)',
+          border: `1px solid ${canSave ? 'var(--accent-dim)' : 'var(--border)'}`,
+          color: canSave ? 'var(--accent)' : 'var(--text-muted)',
+        }}>Save Session</button>
       </div>
 
-      {/* Session History */}
       {sessions.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="font-display text-xl" style={{ color: 'var(--text-secondary)' }}>HISTORY</h2>
-          {sessions.map(s => (
-            <SessionCard key={s.id} session={s} techniques={techniques} onDelete={deleteSession} />
-          ))}
+        <div>
+          <h2 className="font-display" style={{ fontSize: '20px', color: 'var(--text-secondary)', margin: '0 0 12px' }}>HISTORY</h2>
+          {sessions.map(s => <SessionCard key={s.id} session={s} techniques={techniques} onDelete={deleteSession} />)}
         </div>
       )}
     </div>

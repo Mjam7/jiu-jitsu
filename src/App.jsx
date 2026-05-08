@@ -14,8 +14,8 @@ export default function App() {
     <StoreContext.Provider value={store}>
       <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>
         <Nav activeHub={activeHub} setActiveHub={setActiveHub} profile={store.profile} />
-        <main className="pt-14">
-          <div className="max-w-6xl mx-auto px-6 py-8">
+        <main style={{ paddingTop: '56px' }}>
+          <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
             {activeHub === 'library' && <TechniqueLibrary />}
             {activeHub === 'session' && <SessionLog />}
             {activeHub === 'game' && <GameHub />}
